@@ -453,16 +453,33 @@ call) and the file keeps its fixed 1080p30 quality.
 
 ---
 
-## Why native Swift (not React Native / Expo) for this part
+## Why We Have Created the Initial Demo Using SwiftUI Instead of React Native / Expo
 
-The hard part is low-level iOS media work: one `AVCaptureSession` feeding two
-encoders, `AVAssetWriter` timing and fragmenting, the audio session and voice
-processing shared with WebRTC, interruptions and background behaviour. That
-needs direct, synchronous access to sample buffers and the device's own queues,
-and every bug found above was at this level. Doing it in native Swift avoids a
-JavaScript bridge in the frame path. For the production app, this capture core
-can be wrapped as a **native module** and driven from React Native / Expo, which
-only needs Start, Stop, Pause, Resume and status events.
+We have created the initial demo using native iOS (SwiftUI) rather than React Native / Expo because the most challenging part of this implementation involves low-level iOS media processing.
+
+The core functionality requires managing a single AVCaptureSession that feeds two encoders, synchronizing audio and video through AVAssetWriter, handling media timing and fragmentation, managing the audio session and voice processing alongside WebRTC, and correctly handling interruptions and background behaviour.
+
+These operations require direct, synchronous access to native sample buffers, AVFoundation APIs, audio hardware, and device-managed execution queues. Implementing this pipeline directly in Swift allows us to avoid unnecessary JavaScript bridge communication in the real-time media-processing path and gives us better control over performance, timing, resource management, and debugging.
+
+The objective of creating this demo in SwiftUI is to first validate the core native media architecture independently, identify and resolve low-level iOS issues, and ensure that audio/video capture, encoding, synchronization, and interruption handling work reliably before introducing React Native / Expo integration.
+
+Once the native implementation is stable, we can package the capture engine as a reusable native Swift module and integrate it into our production React Native / Expo application.
+
+The React Native / Expo layer will only need to interact with a simple set of native methods:
+
+Start recording
+
+Stop recording
+
+Pause recording
+
+Resume recording
+
+Receive recording status and error events
+
+This approach allows us to validate and stabilize the most technically challenging component first, rather than introducing React Native / Expo integration as an additional variable while debugging native media-processing issues.
+
+In short: We are using SwiftUI for the initial demo not because React Native / Expo cannot support this functionality, but because validating the native iOS recording engine independently is the most reliable first step. Once validated, the same native engine can be integrated into our React Native / Expo production application without rewriting the core media-processing logic.
 
 ---
 
